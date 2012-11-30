@@ -1,24 +1,28 @@
 {% extends "base.html" %}
 {% block body %}
   <ul class="media-list">
-  {% for entry in posts %}
+  {% for post in posts %}
     <li class="media">
       <div class="media-body">
-        <h3 class="media-heading"><a href="">{{ entry.title }}</a></h3>
+        <h3 class="media-heading"><a href="">{{ post.title }}</a></h3>
         <p class="text-info">November 15th, 2012</p>
         <p>
-          {{ entry.content|safe }}
+          {{ post.content|safe }}
         </p>
-        <small>
-          Tags:
-          JavaScript,
-          Workflow,
-          IDE
-        </small>
+        {% for tag in post.tags %}
+          <span class="badge badge-info">{{ tag.name }}</span>
+        {% endfor %}
       </div>
     </li>
   {% else %}
-    <li><strong>Sorry,</strong> no posts so far.</li>
+    <li class="media">
+      <div class="media-body">
+        <h3 class="media-heading text-error">Oops</h3>
+        <p>
+          <strong>Sorry,</strong> no posts so far.</li>
+        </p>
+      </div>
+    </li>
   {% endfor %}
   </ul>
 {% endblock %}
