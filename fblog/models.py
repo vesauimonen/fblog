@@ -1,5 +1,6 @@
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from flask.ext.login import UserMixin, AnonymousUser
 from fblog.database import Base
 
 
@@ -35,3 +36,18 @@ class Tag(Base):
 
     def __repr__(self):
         return '<Tag %r>' % (self.name)
+
+
+class User(UserMixin):
+    def __init__(self, name, id, password, active=True):
+        self.name = name
+        self.id = id
+        self.password = password
+        self.active = active
+
+    def is_active(self):
+        return self.active
+
+
+class Anonymous(AnonymousUser):
+    name = u"Anonymous"
