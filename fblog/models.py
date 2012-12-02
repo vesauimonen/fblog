@@ -1,10 +1,12 @@
 import datetime
 from math import ceil
-from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey, \
-    desc
+from sqlalchemy import Table, Column, Integer, String, Boolean, DateTime, \
+    ForeignKey, desc
 from sqlalchemy.orm import relationship
 from flask.ext.login import UserMixin, AnonymousUser
 from fblog.database import Base
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
 
 
 associated_tags = Table('associated_tags', Base.metadata,
@@ -27,10 +29,7 @@ class Post(Base):
         self.tags = tags
 
     def __repr__(self):
-        # Todo: Repr doesn't need to be this big?
-        return "<Post ('%d', '%r', '%r', '%s')>" % (self.id, self.title,
-            self.content, self.published
-            )
+        return "<Post %r>" % (self.title)
 
 
 class Tag(Base):
@@ -45,15 +44,26 @@ class Tag(Base):
         return '<Tag %r>' % (self.name)
 
 
-class User(UserMixin):
-    def __init__(self, name, id, password, active=True):
-        self.name = name
-        self.id = id
-        self.password = password
+class User(Base, UserMixin):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(30))
+    password = Column(String)
+    active = Column(Boolean)
+
+    def __init__(self, username, password, active=True):
+        self.username = username
+        self.set_password(password)
         self.active = active
 
     def is_active(self):
         return self.active
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 
 class Anonymous(AnonymousUser):

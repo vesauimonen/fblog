@@ -2,7 +2,8 @@ import re
 import configuration
 from flask import Flask, request, render_template, redirect, url_for, flash, \
     abort
-from flask.ext.login import LoginManager, current_user, login_required, login_user, logout_user
+from flask.ext.login import LoginManager, login_required, login_user, \
+    logout_user
 from fblog.database import db_session
 from fblog.models import Post, User, Anonymous, Pagination, \
     get_posts_for_page, count_all_posts
@@ -17,15 +18,11 @@ login_manager = LoginManager()
 login_manager.anonymous_user = Anonymous
 login_manager.login_view = 'login'
 login_manager.login_message = app.config['LOGIN_MESSAGE']
-USERS = {
-    1: User(app.config['USERNAME'], 1, app.config['PASSWORD'])
-}
-USER_NAMES = dict((u.name, u) for u in USERS.itervalues())
 
 
 @login_manager.user_loader
 def load_user(id):
-    return USERS.get(int(id))
+    return User.query.get(int(id))
 
 login_manager.init_app(app)
 
@@ -53,6 +50,8 @@ def display_posts(page):
 @app.route('/post/<int:id>')
 def display_post(id):
     post = Post.query.get(id)
+    if post is None:
+        abort(404)
     return render_template('post.html', post=post)
 
 
@@ -61,6 +60,8 @@ def display_post(id):
 @login_required
 def add_post(id):
     edit = True if id != None else False
+    if edit and Post.query.get(id) == None:
+        abort(404)
     if edit:
         post = Post.query.get(id)
     else:
@@ -101,20 +102,21 @@ def delete_post(id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
     if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
+        user = User.query.filter(
+            User.username == request.form['username']).first()
+        if user is None:
             flash('Invalid username.')
-        elif request.form['password'] != app.config['PASSWORD']:
+        elif not user.check_password(request.form['password']):
             flash('Invalid password.')
         else:
-            username = request.form['username']
-            if login_user(USER_NAMES[username]):
+            if login_user(user):
                 flash('You are logged in!')
+                # Todo: req args next not working
                 return redirect(request.args.get('next') or url_for('display_posts'))
             else:
                 flash("Sorry, you couldn't be logged in.")
-    return render_template('login.html', error=error)
+    return render_template('login.html')
 
 
 @app.route('/logout')
