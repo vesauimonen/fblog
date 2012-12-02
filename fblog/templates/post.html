@@ -10,7 +10,7 @@
   <p class="text-info">
     Published: <time pubdate="pubdate">{{ post.published.strftime('%d %B %Y') }}</time>
   </p>
-  {{ post.content|nl2br }}
+  {{ post.content|safe|nl2br }}
   {% for tag in post.tags %}
     <span class="badge badge-info">{{ tag.name }}</span>
   {% endfor %}
