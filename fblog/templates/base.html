@@ -30,11 +30,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">Fblog</a>
+          <a class="brand" href="{{ url_for('display_posts') }}">Fblog</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="/">Posts</a></li>
-              <li><a href="/login">Login</a></li>
+              <li class="active"><a href="{{ url_for('display_posts') }}">Posts</a></li>
+              <li class="divider-vertical"></li>
+              {% if current_user.is_authenticated() %}
+                <li><a href="{{ url_for('add_post') }}">New post</a></li>
+                <li><a href="{{ url_for('logout') }}">Log out</a></li>
+              {% else %}
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+              {% endif %}
             </ul>
           </div>
         </div>
