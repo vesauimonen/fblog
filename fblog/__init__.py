@@ -1,37 +1,26 @@
 import re
+import configuration
 from flask import Flask, request, render_template, redirect, url_for, flash, \
     abort
-from flask.ext.login import LoginManager, current_user, login_required, \
-    login_user, logout_user, UserMixin, AnonymousUser, confirm_login, \
-    fresh_login_required
+from flask.ext.login import LoginManager, current_user, login_required, login_user, logout_user
 from fblog.database import db_session
 from fblog.models import Post, User, Anonymous, Pagination, \
     get_posts_for_page, count_all_posts
 from jinja2 import evalcontextfilter, Markup, escape
 
 
-# configuration
-DATABASE = '/tmp/flaskr.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
-USERS = {
-    1: User(USERNAME, 1, PASSWORD)
-}
-USER_NAMES = dict((u.name, u) for u in USERS.itervalues())
-PER_PAGE = 5
-
 app = Flask(__name__)
 
-app.config.from_object(__name__)
+app.config.from_object(configuration)
 
 login_manager = LoginManager()
-
 login_manager.anonymous_user = Anonymous
 login_manager.login_view = 'login'
-login_manager.login_message = u'Please log in to access this page.'
-login_manager.refresh_view = 'reauth'
+login_manager.login_message = app.config['LOGIN_MESSAGE']
+USERS = {
+    1: User(app.config['USERNAME'], 1, app.config['PASSWORD'])
+}
+USER_NAMES = dict((u.name, u) for u in USERS.itervalues())
 
 
 @login_manager.user_loader
@@ -141,6 +130,7 @@ def url_for_other_page(page):
     args['page'] = page
     return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
