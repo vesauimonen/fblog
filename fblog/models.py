@@ -98,7 +98,7 @@ def get_posts_for_page(page, per_page, total_count):
     if total_count <= per_page * (page - 1):
         return []
     posts_for_page = []
-    for i in range((page - 1) * per_page, page * per_page - 1):
+    for i in range((page - 1) * per_page, page * per_page):
         if (total_count == i):
             break
         posts_for_page.append(posts[i])
