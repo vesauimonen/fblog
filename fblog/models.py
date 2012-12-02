@@ -1,4 +1,5 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+import datetime
+from sqlalchemy import Table, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from flask.ext.login import UserMixin, AnonymousUser
 from fblog.database import Base
@@ -15,6 +16,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String)
     content = Column(String)
+    published = Column(DateTime, default=datetime.datetime.now)
     tags = relationship('Tag', secondary=associated_tags)
 
     def __init__(self, title, content, tags):
@@ -23,7 +25,9 @@ class Post(Base):
         self.tags = tags
 
     def __repr__(self):
-        return "<Post ('%r', '%r')>" % (self.title, self.content)
+        return "<Post ('%d', '%r', '%r', '%s')>" % (self.id, self.title,
+            self.content, self.published
+            )
 
 
 class Tag(Base):

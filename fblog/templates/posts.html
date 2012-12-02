@@ -1,17 +1,28 @@
 {% extends "base.html" %}
 {% block body %}
+  <h2>Submitted posts</h2>
   <ul class="media-list">
   {% for post in posts %}
     <li class="media">
       <div class="media-body">
-        <h3 class="media-heading"><a href="">{{ post.title }}</a></h3>
-        <p class="text-info">November 15th, 2012</p>
+        <h3 class="media-heading"><a href="{{ url_for('display_post', id=post.id) }}">{{ post.title }}</a></h3>
+        <p class="text-info">{{ post.published.strftime('%d %B %Y') }}</p>
         <p>
           {{ post.content|safe }}
         </p>
         {% for tag in post.tags %}
           <span class="badge badge-info">{{ tag.name }}</span>
         {% endfor %}
+        {% if current_user.is_authenticated() %}
+          <div class="btn-group">
+            <a class="btn btn-mini btn-info" href="#"></i> Actions</a>
+            <a class="btn btn-mini btn-info dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#"><i class="icon-pencil"></i> Edit</a></li>
+              <li><a href="#"><i class="icon-trash"></i> Delete</a></li>
+            </ul>
+          </div>
+        {% endif %}
       </div>
     </li>
   {% else %}
