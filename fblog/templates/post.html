@@ -2,19 +2,22 @@
 {% block body %}
 <article>
   <h2>{{ post.title }}</h2>
+  {% if current_user.is_authenticated() %}
+    <p>
+      <i class="icon-pencil"></i> <a href="{{ url_for('add_post', id=post.id) }}">Edit</a> <i class="icon-trash"></i> <a href="{{ url_for('delete_post', id=post.id) }}">Delete</a>
+    </p>
+  {% endif %}
   <p class="text-info">
     Published: <time pubdate="pubdate">{{ post.published.strftime('%d %B %Y') }}</time>
   </p>
-  <p>
-    {{ post.content|safe }}
-  </p>
+  {{ post.content|nl2br }}
   {% for tag in post.tags %}
     <span class="badge badge-info">{{ tag.name }}</span>
   {% endfor %}
 </article>
 <ul class="pager">
   <li class="previous">
-    <a href="{{ url_for('display_posts') }}">&larr; Back to posts</a>
+    <a href="javascript: history.go(-1)">&larr; Back</a>
   </li>
 </ul>
 {% endblock %}
